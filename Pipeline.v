@@ -24,7 +24,7 @@
 `include "Execute_cycle.v"
 `include "Memory_cycle.v"
 `include "Writeback_cycle.v"
-
+`include "Hazard_unit.v"
 module Pipeline(
     clk, rst
     );
@@ -70,8 +70,8 @@ module Pipeline(
                         .RD_E(RD_E), 
                         .PCE(PCE), 
                         .PCPlus4E(PCPlus4E),
-                        .RS1_E(/*RS1_E*/),
-                        .RS2_E(/*RS2_E*/)
+                        .RS1_E(RS1_E),
+                        .RS2_E(RS2_E)
                     );
 
     // Execute Stage
@@ -99,9 +99,9 @@ module Pipeline(
                         .PCPlus4M(PCPlus4M), 
                         .WriteDataM(WriteDataM), 
                         .ALU_ResultM(ALU_ResultM),
-                        .ResultW(/*ResultW*/),
-                        .ForwardA_E(/*ForwardAE*/),
-                        .ForwardB_E(/*ForwardBE*/)
+                        .ResultW(ResultW),
+                        .ForwardA_E(ForwardAE),
+                        .ForwardB_E(ForwardBE)
                     );
     
     // Memory Stage
@@ -133,4 +133,15 @@ module Pipeline(
                         .ReadDataW(ReadDataW), 
                         .ResultW(ResultW)
                     );
+    Hazard_unit Forwarding (
+                        .rst(rst), 
+                        .RegWriteM(RegWriteM), 
+                        .RegWriteW(RegWriteW), 
+                        .RD_M(RD_M), 
+                        .RD_W(RDW), 
+                        .Rs1_E(RS1_E), 
+                        .Rs2_E(RS2_E), 
+                        .ForwardAE(ForwardAE), 
+                        .ForwardBE(ForwardBE)
+                        );
 endmodule

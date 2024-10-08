@@ -22,7 +22,7 @@
 `include "Mux.v"
 `include "PC_Adder.v"
 `include "ALU.v"
-
+`include "Mux31.v"
 module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, BranchE, ALUControlE, 
     RD1_E, RD2_E, Imm_Ext_E, RD_E, PCE, PCPlus4E, PCSrcE, PCTargetE, RegWriteM, MemWriteM, ResultSrcM, RD_M, PCPlus4M, WriteDataM, ALU_ResultM, ResultW, ForwardA_E, ForwardB_E);
 
@@ -52,7 +52,7 @@ module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, Branch
 
     // Declaration of Modules
     // 3 by 1 Mux for Source A
-   /* Mux_3_by_1 srca_mux (
+    Mux31 srca_mux (
                         .a(RD1_E),
                         .b(ResultW),
                         .c(ALU_ResultM),
@@ -61,7 +61,7 @@ module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, Branch
                         );
 
     // 3 by 1 Mux for Source B
-    Mux_3_by_1 srcb_mux (
+    Mux31 srcb_mux (
                         .a(RD2_E),
                         .b(ResultW),
                         .c(ALU_ResultM),
@@ -70,7 +70,7 @@ module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, Branch
                         );
     // ALU Src Mux*/
     Mux alu_src_mux (
-            .a(/*Src_B_interim*/RD2_E),
+            .a(Src_B_interim),
             .b(Imm_Ext_E),
             .s(ALUSrcE),
             .c(Src_B)
@@ -78,7 +78,7 @@ module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, Branch
 
     // ALU Unit
     ALU alu (
-            .A(/*Src_A*/RD1_E),
+            .A(Src_A),
             .B(Src_B),
             .Result(ResultE),
             .ALUControl(ALUControlE),
@@ -112,7 +112,7 @@ module Execute_cycle(clk, rst, RegWriteE, ALUSrcE, MemWriteE, ResultSrcE, Branch
             ResultSrcE_r <= ResultSrcE;
             RD_E_r <= RD_E;
             PCPlus4E_r <= PCPlus4E; 
-            RD2_E_r <= /*Src_B_interim*/ RD2_E; 
+            RD2_E_r <= Src_B_interim; 
             ResultE_r <= ResultE;
         end
     end

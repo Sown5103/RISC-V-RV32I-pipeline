@@ -38,7 +38,7 @@ module Instruction_Memory(
         //Mem[0]=32'h003100B3;
         //Mem[1]=32'h0062F433;
         
-        //Mem[0]=32'h003100B3;add
+        //Mem[0]=32'h003100B3;
         //Mem[1]=32'h40308233;sub
         //Mem[2]=32'h0040E2B3;or
         //Mem[3]=32'hFFC2A403;lw

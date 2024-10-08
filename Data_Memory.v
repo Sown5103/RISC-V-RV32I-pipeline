@@ -40,6 +40,7 @@ module Data_Memory(
     initial begin
         //mem[28] = 32'h00000020;
         //mem[40] = 32'h00000002;
-        mem[7]=32'h000000ab;
+        //mem[7]=32'h000000ab;
+        mem[0]=32'h0000000a;
     end
 endmodule

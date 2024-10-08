@@ -42,6 +42,6 @@ module Register_Files(
         //Reg[12]=32'h00000030;
         //Reg[2]=32'h00000003;
         //Reg[3]=32'h00000007;
-        Reg[0]=32'h00000001;
+        Reg[0]=32'h00000000;
     end
 endmodule
