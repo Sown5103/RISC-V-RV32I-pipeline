@@ -23,23 +23,37 @@
 `include "Instruction_Memory.v"
 `include "PC_Adder.v"
 `include "Mux.v"
-module Fetch_cycle(clk, rst, PCSrcE, PCTargetE, InstrD, PCD, PCPlus4D);
+module Fetch_cycle(clk, rst, LoadD,ALU_ResultE,JalE,JalrE,Branch_resultE,JalD,JalrD,Branch_resultD, InstrD, PCD, PCPlus4D);
     input clk, rst;
-    input PCSrcE;
-    input[31:0] PCTargetE;
+    input JalE,JalrE,Branch_resultE,LoadD;
+    input JalD,JalrD,Branch_resultD;
+    input[31:0] ALU_ResultE;
     output[31:0] InstrD;
     output[31:0] PCD, PCPlus4D;
     
     wire[31:0]PC_F, PCF, PCPlus4F,InstrF;
     reg[31:0] InstrF_reg,PCF_reg,PCPlus4F_reg;
-    Mux Mux_RegToALU(.a(PCPlus4F),
+    reg flush_pipeline,flush_pipeline2;
+    
+    /*Mux Mux_RegToALU(.a(PCPlus4F),
                      .b(PCTargetE),
                      .s(PCSrcE),
-                     .c(PC_F));
-                     
-    PC PC(.PCi(PCF),
+                     .c(PC_F));*/
+    NextAddr na(    
+                    .PCnext(PCPlus4F),
+                    .ALU_Result(ALU_ResultE),
+                    .jal(JalE),
+                    .jalr(JalrE),
+                    .branch(Branch_resultE),
+                    .load(LoadD),
+                    .PC_F(PC_F)
+               );                
+    PC PC(
           .PCnext(PC_F),
-          .rst(rst),.clk(clk));
+          .rst(rst),
+          .clk(clk),
+          .PCi(PCF)
+          );
           
     Instruction_Memory Instruction_Memory(.A(PCF),
                                           .rst(rst),
@@ -61,7 +75,42 @@ module Fetch_cycle(clk, rst, PCSrcE, PCTargetE, InstrD, PCD, PCPlus4D);
             PCF_reg <= PCF;
             PCPlus4F_reg <= PCPlus4F;
         end
-    end                       
+    end     
+    
+    always @ (posedge clk  ) begin
+    if (JalD | Branch_resultD | JalrD) begin
+      // If jal, jalr, or branch result is high, flush the pipeline for one cycle
+      PCF_reg <= 32'b0;
+      InstrF_reg <= 32'bz;
+      flush_pipeline <= 1; // Set flag to flush for one cycle
+    end 
+    else begin
+      if (flush_pipeline) begin
+        // Stall the pipeline for one additional cycle after flushing
+        PCF_reg <= 32'b0;
+        InstrF_reg <= 32'bz;
+        flush_pipeline <= 0; // Reset flag after one cycle stall
+        //flush_pipeline2 <= 1; // Set flag to flush for one cycle
+      end
+      //else if (flush_pipeline2) begin
+        // Stall the pipeline for one additional cycle after flushing
+       // PCF_reg <= 32'b0;
+        //InstrF_reg <= 32'b0;
+        //flush_pipeline2 <= 0; // Reset flag after one cycle stall
+      //end
+      else if (LoadD) begin
+        //stall pipeline
+        //PCF_reg <= PCD;
+        InstrF_reg <= 32'bz;
+      end
+      else begin
+        // For other instructions, proceed normally
+        PCF_reg <= PCF;
+        InstrF_reg <= InstrF;
+      end
+    end
+    end
+                    
     //output
     assign  InstrD = (rst == 1'b0) ? 32'h00000000 : InstrF_reg;
     assign  PCD = (rst == 1'b0) ? 32'h00000000 : PCF_reg;

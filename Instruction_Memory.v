@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Instruction_Memory(
+    module Instruction_Memory(
     A, rst, RD
     );
     input[31:0] A;
@@ -47,8 +47,10 @@ module Instruction_Memory(
         Mem[0]=32'h00500293;
         Mem[1]=32'h00300313;
         Mem[2]=32'h006283B3;
-        Mem[3]=32'h00002403;
-        Mem[4]=32'h00100493;
+        Mem[3]=32'hFF9FF06F;
+        //Mem[3]=32'hFF9FF2EF;
+        Mem[4]=32'h00140413;
+        //Mem[3]=32'hFF5FF2EF;
         Mem[5]=32'h00940533;
     end
 endmodule

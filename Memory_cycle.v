@@ -20,33 +20,34 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "Data_Memory.v"
-module Memory_cycle(clk, rst, RegWriteM, MemWriteM, ResultSrcM, RD_M, PCPlus4M, WriteDataM, 
-    ALU_ResultM, RegWriteW, ResultSrcW, RD_W, PCPlus4W, ALU_ResultW, ReadDataW);
+module Memory_cycle(clk, rst, RegWriteM, LoadM,StoreM, ResultSrcM, RD_M, PCPlus4M, WriteDataM, 
+    ALU_ResultM,InstrM, RegWriteW, ResultSrcW, RD_W, PCPlus4W, ALU_ResultW, ReadDataW);
     
     // Declaration of I/Os
-    input clk, rst, RegWriteM, MemWriteM, ResultSrcM;
+    input clk, rst, RegWriteM, LoadM,StoreM;
     input [4:0] RD_M; 
-    input [31:0] PCPlus4M, WriteDataM, ALU_ResultM;
-
-    output RegWriteW, ResultSrcW; 
+    input [31:0] PCPlus4M, WriteDataM, ALU_ResultM,InstrM;
+    input [1:0]ResultSrcM;
+    output RegWriteW; 
     output [4:0] RD_W;
     output [31:0] PCPlus4W, ALU_ResultW, ReadDataW;
-
+    output[1:0]ResultSrcW;
     // Declaration of Interim Wires
     wire [31:0] ReadDataM;
 
     // Declaration of Interim Registers
-    reg RegWriteM_r, ResultSrcM_r;
+    reg RegWriteM_r;
     reg [4:0] RD_M_r;
     reg [31:0] PCPlus4M_r, ALU_ResultM_r, ReadDataM_r;
-
+    reg [1:0]ResultSrcM_r;
     // Declaration of Module Initiation
     Data_Memory dmem (
                         .clk(clk),
                         .rst(rst),
-                        .WE(MemWriteM),
-                        .WD(WriteDataM),
+                        .load(LoadM),
+                        .store(StoreM),
                         .A(ALU_ResultM),
+                        .WD(WriteDataM),
                         .RD(ReadDataM)
                     );
 
