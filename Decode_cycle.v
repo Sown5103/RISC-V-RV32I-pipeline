@@ -22,26 +22,27 @@
 
 
 
-module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, RegWriteE,ResultSrcE,
-    Branch_resultE,LoadE,StoreE,JalE,JalrE, ALUControlE, RD1_E, RD2_E, RD_E, PCE, PCPlus4E, RS1_E, RS2_E,InstrE,LoadD,Branch_resultD,JalD,JalrD);
+module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, RegWriteE,ResultSrcE,
+    Branch_resultE,LoadE,StoreE,JalE,JalrE, ALUControlE, RD1_E, RD2_E, RD_E, PCE, PCPlus4E, RS1_E, RS2_E,
+    InstrE,LoadD,Branch_resultD,JalD,JalrD,opb,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec);
 
     // Declaring I/O
-    input clk, rst, RegWriteF;
-    input [4:0] RDF;
-    input [31:0] InstrD, PCD, PCPlus4D, ResultF;
-
+    input clk, rst, RegWriteW;
+    input [4:0] RDW;
+    input [31:0] InstrD, PCD, PCPlus4D, ResultW;
+    input [1:0]ForwardAEDec,ForwardBEDec;
     output RegWriteE,Branch_resultE,LoadE,StoreE,JalE,JalrE;
     output [1:0]ResultSrcE;
     output [3:0] ALUControlE;
     output [31:0] RD1_E, RD2_E;
     output [4:0] RS1_E, RS2_E, RD_E;
-    output [31:0] PCE, PCPlus4E,InstrE;
+    output [31:0] PCE, PCPlus4E,InstrE,opb;
     output wire LoadD,Branch_resultD,JalD,JalrD;
     // Declare Interim Wires
     wire RegWriteD,Branch_resultD,StoreD,JalD,JalrD,BranchD,operand_a,operand_b;
     wire [1:0]ResultSrcD;
     wire [3:0] ALUControlD;
-    wire [31:0] RD1_D, RD2_D, InstrD,op_a,op_b,i_immo , s_immo , sb_immo , uj_immo , u_immo,imm_mux_out;
+    wire [31:0] RD1_D, RD2_D, InstrD,op_a,op_b,oppa,oppb,i_immo , s_immo , sb_immo , uj_immo , u_immo,imm_mux_out;
     wire [2:0]imm_sel;
     
     // Declaration of Interim Register
@@ -49,10 +50,12 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
     reg [3:0] ALUControlD_r;
     reg [31:0] RD1_D_r, RD2_D_r;
     reg [4:0] RD_D_r, RS1_D_r, RS2_D_r;
-    reg [31:0] PCD_r, PCPlus4D_r,InstrD_r; 
+    reg [31:0] PCD_r, PCPlus4D_r,InstrD_r,op_b_r; 
     reg [1:0]ResultSrcD_r;
 
-
+    output wire [31:0] RS1_D,RS2_D;
+    assign RS1_D=InstrD[19:15];
+    assign RS2_D=InstrD[24:20];
     // Initiate the modules
     // Control Unit
     Control_Unit control (
@@ -76,14 +79,28 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
     Register_Files rf (
                         .clk(clk),
                         .rst(rst),
-                        .WE3(RegWriteF),
-                        .WD3(ResultF),
+                        .WE3(RegWriteW),
+                        .WD3(ResultW),
                         .A1(InstrD[19:15]),
                         .A2(InstrD[24:20]),
-                        .A3(RDF),
+                        .A3(RDW),
                         .RD1(op_a),
                         .RD2(op_b)
                         );
+    Mux u_muxx1 
+    (
+        .a(op_a),
+        .b(ResultW),
+        .s(ForwardAEDec),
+        .c(oppa)
+    );
+    Mux u_muxx2 
+    (
+        .a(op_a),
+        .b(ResultW),
+        .s(ForwardBEDec),
+        .c(oppb)
+    );
     immediategen u_imm_gen0 (
         .instr(InstrD),
         .i_imme(i_immo),
@@ -105,7 +122,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
     //SELECTION OF PROGRAM COUNTER OR OPERAND A
     Mux u_mux1 
     (
-        .a(op_a),
+        .a(oppa),
         .b(PCD),
         .s(operand_a),
         .c(RD1_D)
@@ -113,7 +130,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
     
     //SELECTION OF OPERAND B OR IMMEDIATE     
     Mux u_mux2(
-        .a(op_b),
+        .a(oppb),
         .b(imm_mux_out),
         .s(operand_b),
         .c(RD2_D)
@@ -150,6 +167,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
             StoreD_r <= 1'b0;
             JalD_r <= 1'b0;
             JalrD_r <= 1'b0;
+            op_b_r<=32'b0;
         end
         else begin
             InstrD_r <= InstrD;
@@ -165,12 +183,13 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
             RD_D_r <= InstrD[11:7];
             PCD_r <= PCD; 
             PCPlus4D_r <= PCPlus4D;
-            RS1_D_r <= InstrD[19:15];
-            RS2_D_r <= InstrD[24:20];
+            RS1_D_r <= RS1_D;
+            RS2_D_r <= RS2_D;
             LoadD_r <= LoadD;
             StoreD_r <= StoreD;
             JalD_r <= JalD;
             JalrD_r <= JalrD;
+            op_b_r<=op_b;
         end
     end
 
@@ -194,5 +213,5 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteF, RDF, ResultF, Re
     assign StoreE = StoreD_r;
     assign JalE = JalD_r;
     assign JalrE = JalrD_r;
-
+    assign opb=op_b_r;
 endmodule

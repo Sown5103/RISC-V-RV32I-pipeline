@@ -19,20 +19,20 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 `include "Mux.v"
-module Writeback_cycle(clk, rst, ResultSrcW, PCPlus4W, ALU_ResultW, ReadDataW,RD_W,RegWriteW, ResultF,ResultW,RD_F,RegWriteF);
+module Writeback_cycle(clk, rst, ResultSrcW, PCPlus4W, ALU_ResultW, ReadDataW,RD_W,RegWriteW,ResultW);
 
 // Declaration of IOs
     input clk, rst,RegWriteW;
     input [31:0] PCPlus4W, ALU_ResultW, ReadDataW;
     input [4:0]RD_W;
     input [1:0]ResultSrcW;
-    output [4:0]RD_F;
-    output[31:0]ResultF;
-    output RegWriteF;
+    //output [4:0]RD_F;
+    //output[31:0]ResultF;
+    //output RegWriteF;
     output wire [31:0] ResultW;
-    reg [4:0]RD_W_r;
-    reg [31:0]ResultW_r;
-    reg RegWriteW_r;
+    //reg [4:0]RD_W_r;
+    //reg [31:0]ResultW_r;
+    //reg RegWriteW_r;
 
 
 
@@ -45,7 +45,7 @@ module Writeback_cycle(clk, rst, ResultSrcW, PCPlus4W, ALU_ResultW, ReadDataW,RD
                 .s(ResultSrcW),
                 .e(ResultW)
                 );
-    always @(posedge clk or negedge rst) begin
+    /*always @(posedge clk or negedge rst) begin
         if(rst == 1'b0) begin
             RD_W_r<=5'b0;
             ResultW_r<=32'b0;
@@ -56,10 +56,10 @@ module Writeback_cycle(clk, rst, ResultSrcW, PCPlus4W, ALU_ResultW, ReadDataW,RD
             ResultW_r<=ResultW;
             RegWriteW_r<=RegWriteW;
         end
-    end
+    end*/
 
     // Output Assignments
-    assign RD_F = RD_W_r;
-    assign ResultF = ResultW_r;
-    assign RegWriteF=RegWriteW_r;
+    //assign RD_F = RD_W_r;
+    //assign ResultF = ResultW_r;
+    //assign RegWriteF=RegWriteW_r;
 endmodule

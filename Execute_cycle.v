@@ -25,12 +25,12 @@
 `include "Mux41.v"
 module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE, 
     RD1_E, RD2_E, RD_E, PCPlus4E,InstrE, RegWriteM, ResultSrcM,LoadM,StoreM, RD_M, PCPlus4M, WriteDataM, ALU_ResultM, 
-    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE);
+    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE,opb);
 
     // Declaration I/Os
     input clk, rst, RegWriteE,LoadE,StoreE;
     input [3:0] ALUControlE;
-    input [31:0] RD1_E, RD2_E;
+    input [31:0] RD1_E, RD2_E,opb;
     input [4:0] RD_E;
     input [31:0] PCPlus4E,InstrE;
     input [31:0] ResultW,ResultF;
@@ -57,7 +57,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .a(RD1_E),
                         .b(ResultW),
                         .c(ALU_ResultM),
-                        .d(ResultF),
+                        .d(0),
                         .s(ForwardA_E),
                         .e(Src_A)
                         );
@@ -67,7 +67,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .a(RD2_E),
                         .b(ResultW),
                         .c(ALU_ResultM),
-                        .d(ResultF),
+                        .d(0),
                         .s(ForwardB_E),
                         .e(Src_B)
                         );
@@ -103,7 +103,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
             StoreE_r <= StoreE;
             RD_E_r <= RD_E;
             PCPlus4E_r <= PCPlus4E; 
-            RD2_E_r <= Src_B; 
+            RD2_E_r <= opb; 
             ResultE_r <= ResultE;
             InstrE_r <= InstrE;
         end

@@ -21,19 +21,25 @@
 
 
 module Hazard_unit(
-    rst, RegWriteM, RegWriteW,RegWriteF, RD_M, RD_W,RD_F, Rs1_E, Rs2_E, ForwardAE, ForwardBE
+    rst, RegWriteM, RegWriteW, RD_M, RD_W, RS1_E, RS2_E, ForwardAE, ForwardBE,StoreE,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec
     );
-    input rst, RegWriteM, RegWriteW, RegWriteF;
-    input[4:0] RD_M, RD_W,RD_F, Rs1_E, Rs2_E;
-    output[1:0] ForwardAE, ForwardBE;
+    input rst, RegWriteM, RegWriteW,StoreE;
+    input[4:0] RD_M, RD_W, RS1_E, RS2_E,RS1_D,RS2_D;
+    output[1:0] ForwardAE, ForwardBE,ForwardAEDec,ForwardBEDec;
     
     assign ForwardAE = (rst == 1'b0) ? 2'b00 : 
-                       ((RegWriteM == 1'b1) & (RD_M != 5'h00) & (RD_M == Rs1_E)) ? 2'b10 :
-                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == Rs1_E)) ? 2'b01 : 
-                       ((RegWriteF == 1'b1) & (RD_F != 5'h00) & (RD_F == Rs1_E)) ? 2'b11 : 2'b00;
+                       ((RegWriteM == 1'b1) & (RD_M != 5'h00) & (RD_M == RS1_E))&(StoreE==1'b0) ? 2'b10 :
+                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == RS1_E))&(StoreE==1'b0) ? 2'b01 : 
+                        2'b00;
                        
     assign ForwardBE = (rst == 1'b0) ? 2'b00 : 
-                       ((RegWriteM == 1'b1) & (RD_M != 5'h00) & (RD_M == Rs2_E)) ? 2'b10 :
-                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == Rs2_E)) ? 2'b01 : 
-                       ((RegWriteF == 1'b1) & (RD_F != 5'h00) & (RD_F == Rs2_E)) ? 2'b11 : 2'b00;
+                       ((RegWriteM == 1'b1) & (RD_M != 5'h00) & (RD_M == RS2_E))&(StoreE==1'b0) ? 2'b10 :
+                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == RS2_E))&(StoreE==1'b0) ? 2'b01 : 
+                        2'b00;
+    assign ForwardAEDec = (rst == 1'b0) ? 2'b00 : 
+                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == RS1_D)) ? 2'b01 : 
+                        2'b00;
+    assign ForwardBEDec = (rst == 1'b0) ? 2'b00 : 
+                       ((RegWriteW == 1'b1) & (RD_W != 5'h00) & (RD_W == RS2_D)) ? 2'b01 : 
+                        2'b00;                     
 endmodule

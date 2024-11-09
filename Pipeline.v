@@ -37,9 +37,9 @@
     wire [4:0] RD_E, RD_M, RD_W,RD_F;
     wire [31:0] PCTargetE, InstrD, PCD, PCPlus4D, ResultW, RD1_E, RD2_E, Imm_Ext_E, PCE, PCPlus4E,InstrE, PCPlus4M, WriteDataM, 
     ALU_ResultM,InstrM,ResultF;
-    wire [31:0] PCPlus4W, ALU_ResultW, ReadDataW,ALU_ResultE;
-    wire [4:0] RS1_E, RS2_E;
-    wire [1:0] ForwardBE, ForwardAE;
+    wire [31:0] PCPlus4W, ALU_ResultW, ReadDataW,ALU_ResultE,opbE;
+    wire [4:0] RS1_E, RS2_E,RS1_D,R21_D;
+    wire [1:0] ForwardBE, ForwardAE,ForwardAEDec,ForwardBEDec;
     
     Fetch_cycle Fetch (
                         .clk(clk), 
@@ -65,9 +65,11 @@
                         .InstrD(InstrD), 
                         .PCD(PCD), 
                         .PCPlus4D(PCPlus4D), 
-                        .RegWriteF(RegWriteF), 
-                        .RDF(RD_F), 
-                        .ResultF(ResultF),
+                        .RegWriteW(RegWriteW), 
+                        .RDW(RD_W), 
+                        .ResultW(ResultW),
+                        .ForwardAEDec(ForwardAEDec),
+                        .ForwardBEDec(ForwardBEDec),
                          //out
                         .LoadD(LoadD),
                         .JalD(JalD),
@@ -88,7 +90,10 @@
                         .PCPlus4E(PCPlus4E),
                         .RS1_E(RS1_E), 
                         .RS2_E(RS2_E),
-                        .InstrE(InstrE)
+                        .InstrE(InstrE),
+                        .opb(opbE),
+                        .RS1_D(RS1_D),
+                        .RS2_D(RS2_D)
                     );
 
     // Execute Stage
@@ -109,7 +114,8 @@
                         .ForwardA_E(ForwardAE),
                         .ForwardB_E(ForwardBE),
                         .ResultW(ResultW),
-                        .ResultF(ResultF),
+                        //.ResultF(ResultF),
+                        .opb(opbE),
                         //out
                         .ResultE(ALU_ResultE),
                         .RegWriteM(RegWriteM),  
@@ -158,22 +164,25 @@
                         .RD_W(RD_W), 
                         .RegWriteW(RegWriteW),
                         //out
-                        .ResultW(ResultW),
-                        .ResultF(ResultF),
-                        .RD_F(RD_F),
-                        .RegWriteF(RegWriteF)
+                        .ResultW(ResultW)
+                        
                     );
     Hazard_unit Forwarding (
                         .rst(rst), 
+                        .StoreE(StoreE),
                         .RegWriteM(RegWriteM), 
                         .RegWriteW(RegWriteW), 
-                        .RegWriteF(RegWriteF),
+                        //.RegWriteF(RegWriteF),
                         .RD_M(RD_M), 
                         .RD_W(RD_W), 
-                        .RD_F(RD_F),
-                        .Rs1_E(RS1_E), 
-                        .Rs2_E(RS2_E), 
+                        //.RD_F(RD_F),
+                        .RS1_E(RS1_E), 
+                        .RS2_E(RS2_E), 
+                        .RS1_D(RS1_D),
+                        .RS2_D(RS2_D),
                         .ForwardAE(ForwardAE), 
-                        .ForwardBE(ForwardBE)
+                        .ForwardBE(ForwardBE),
+                        .ForwardAEDec(ForwardAEDec),
+                        .ForwardBEDec(ForwardBEDec)
                         );
 endmodule
