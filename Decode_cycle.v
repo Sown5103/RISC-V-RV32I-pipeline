@@ -96,7 +96,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
     );
     Mux u_muxx2 
     (
-        .a(op_a),
+        .a(op_b),
         .b(ResultW),
         .s(ForwardBEDec),
         .c(oppb)
@@ -189,7 +189,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
             StoreD_r <= StoreD;
             JalD_r <= JalD;
             JalrD_r <= JalrD;
-            op_b_r<=op_b;
+            op_b_r<=oppb;
         end
     end
 

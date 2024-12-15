@@ -38,8 +38,8 @@
     wire [31:0] PCTargetE, InstrD, PCD, PCPlus4D, ResultW, RD1_E, RD2_E, Imm_Ext_E, PCE, PCPlus4E,InstrE, PCPlus4M, WriteDataM, 
     ALU_ResultM,InstrM,ResultF;
     wire [31:0] PCPlus4W, ALU_ResultW, ReadDataW,ALU_ResultE,opbE;
-    wire [4:0] RS1_E, RS2_E,RS1_D,R21_D;
-    wire [1:0] ForwardBE, ForwardAE,ForwardAEDec,ForwardBEDec;
+    wire [4:0] RS1_E, RS2_E,RS1_D,RS2_D;
+    wire [1:0] ForwardBE, ForwardAE,ForwardAEDec,ForwardBEDec,ForwardASt,ForwardBSt;
     
     Fetch_cycle Fetch (
                         .clk(clk), 
@@ -113,6 +113,8 @@
                         .InstrE(InstrE),
                         .ForwardA_E(ForwardAE),
                         .ForwardB_E(ForwardBE),
+                        .ForwardASt(ForwardASt),
+                        .ForwardBSt(ForwardBSt),
                         .ResultW(ResultW),
                         //.ResultF(ResultF),
                         .opb(opbE),
@@ -183,6 +185,8 @@
                         .ForwardAE(ForwardAE), 
                         .ForwardBE(ForwardBE),
                         .ForwardAEDec(ForwardAEDec),
-                        .ForwardBEDec(ForwardBEDec)
+                        .ForwardBEDec(ForwardBEDec),
+                        .ForwardASt(ForwardASt),
+                        .ForwardBSt(ForwardBSt)
                         );
 endmodule

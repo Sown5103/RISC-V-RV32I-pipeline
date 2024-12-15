@@ -40,6 +40,11 @@ module Memory_cycle(clk, rst, RegWriteM, LoadM,StoreM, ResultSrcM, RD_M, PCPlus4
     reg [4:0] RD_M_r;
     reg [31:0] PCPlus4M_r, ALU_ResultM_r, ReadDataM_r;
     reg [1:0]ResultSrcM_r;
+    //
+    wire [2:0]func3;
+    wire [1:0]byteadd;
+    assign func3=InstrM[14:12];
+    assign byteadd=ALU_ResultM[1:0];
     // Declaration of Module Initiation
     Data_Memory dmem (
                         .clk(clk),
@@ -48,7 +53,9 @@ module Memory_cycle(clk, rst, RegWriteM, LoadM,StoreM, ResultSrcM, RD_M, PCPlus4
                         .store(StoreM),
                         .A(ALU_ResultM),
                         .WD(WriteDataM),
-                        .RD(ReadDataM)
+                        .RD(ReadDataM),
+                        .func3(func3),
+                        .byteadd(byteadd)
                     );
 
     // Memory Stage Register Logic

@@ -25,7 +25,7 @@
 `include "Mux41.v"
 module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE, 
     RD1_E, RD2_E, RD_E, PCPlus4E,InstrE, RegWriteM, ResultSrcM,LoadM,StoreM, RD_M, PCPlus4M, WriteDataM, ALU_ResultM, 
-    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE,opb);
+    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE,opb,ForwardASt,ForwardBSt);
 
     // Declaration I/Os
     input clk, rst, RegWriteE,LoadE,StoreE;
@@ -34,7 +34,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
     input [4:0] RD_E;
     input [31:0] PCPlus4E,InstrE;
     input [31:0] ResultW,ResultF;
-    input [1:0] ForwardA_E, ForwardB_E,ResultSrcE;
+    input [1:0] ForwardA_E, ForwardB_E,ResultSrcE,ForwardASt,ForwardBSt;
 
     output RegWriteM,LoadM,StoreM;
     output [4:0] RD_M; 
@@ -42,7 +42,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
     output [31:0] ResultE;
     output [1:0]ResultSrcM;
     // Declaration of Interim Wires
-    wire [31:0] Src_A, Src_B;
+    wire [31:0] Src_A, Src_B, opbb, Src_A1,Src_A2;
     wire [31:0] ResultE;
     reg LoadE_r, StoreE_r;
 
@@ -59,7 +59,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .c(ALU_ResultM),
                         .d(0),
                         .s(ForwardA_E),
-                        .e(Src_A)
+                        .e(Src_A1)
                         );
 
     // 3 by 1 Mux for Source B
@@ -71,8 +71,29 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .s(ForwardB_E),
                         .e(Src_B)
                         );
-    // ALU Src Mux*/
-
+    // Writedata 
+    Mux41 wd1_mux (
+                        .a(RD1_E),
+                        .b(ResultW),
+                        .c(ALU_ResultM),
+                        .d(0),
+                        .s(ForwardASt),
+                        .e(Src_A2)
+                        );
+    Mux41 wd2_mux (
+                        .a(opb),
+                        .b(ResultW),
+                        .c(ALU_ResultM),
+                        .d(0),
+                        .s(ForwardBSt),
+                        .e(opbb)
+                        );         
+    Mux srca (
+            .a(Src_A1),
+            .b(Src_A2),
+            .s(StoreE),
+            .c(Src_A)
+            );       
     // ALU Unit
     ALU alu (
             .a_i(Src_A),
@@ -103,7 +124,7 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
             StoreE_r <= StoreE;
             RD_E_r <= RD_E;
             PCPlus4E_r <= PCPlus4E; 
-            RD2_E_r <= opb; 
+            RD2_E_r <= opbb; 
             ResultE_r <= ResultE;
             InstrE_r <= InstrE;
         end

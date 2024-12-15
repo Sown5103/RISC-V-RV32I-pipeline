@@ -216,7 +216,7 @@ always @(*) begin
         imm_sel = 3'b011; //jal selection
     end
     if(jalr)begin
-        mem_to_reg = 2'b00;
+        mem_to_reg = 2'b10;
         alu_control = 4'b0000;
         imm_sel = 3'b000;//i_type selection
     end
