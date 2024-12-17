@@ -21,15 +21,22 @@
 
 
 module NextAddr(
-    PCnext,ALU_Result,jal,jalr,branch,load,PC_F
+    PCnext,ALU_Result,jal,jalr,branch,load,PC_F,sel,predicted_address,flag,PCback
     );
     
-    input[31:0] PCnext,ALU_Result,jal,jalr,branch,load;
+    input[31:0] PCnext,ALU_Result,jal,jalr,branch,load,predicted_address,PCback;
+    input sel,flag;
     output reg [31:0] PC_F;
     always@(*) begin   
-            if(jal|jalr|branch) PC_F <= ALU_Result;
+            if(jal|jalr/*|branch*/) PC_F <= ALU_Result;
+            if(flag)begin
+                if(branch)PC_F<=ALU_Result;
+                else PC_F<=PCback;
+                
+            end
             else if(load) PC_F<=PC_F;
-            else PC_F<=PCnext;
+            else if(sel)PC_F<=predicted_address;
+            else PC_F<=PCnext;       
     end
     //assign PC_F=(jal|jalr|branch)?ALU_Result:
      //           (load)?PC_F:PCnext;

@@ -24,15 +24,14 @@
 `include "PC_Adder.v"
 `include "Mux.v"
 module Fetch_cycle(clk, rst, LoadD,ALU_ResultE,JalE,JalrE,Branch_resultE,JalD,JalrD,Branch_resultD, InstrD, 
-PCD, PCPlus4D,predicted_address,sel);
-    input clk, rst,sel;
+PCD, PCPlus4D,predicted_address,sel,PCF,InstrF,flag,PCback);
+    input clk, rst,sel,flag;
     input JalE,JalrE,Branch_resultE,LoadD;
     input JalD,JalrD,Branch_resultD;
-    input[31:0] ALU_ResultE,predicted_address;
-    output[31:0] InstrD;
-    output[31:0] PCD, PCPlus4D;
-    
-    wire[31:0]PC_F, PCF, PCPlus4F,InstrF;
+    input[31:0] ALU_ResultE,predicted_address,PCback;
+    output[31:0] InstrD,InstrF;
+    output[31:0] PCD, PCPlus4D,PCF;
+    wire[31:0]PC_F, PCPlus4F;
     reg[31:0] InstrF_reg,PCF_reg,PCPlus4F_reg;
     reg flush_pipeline,flush_pipeline2;
     
@@ -47,7 +46,11 @@ PCD, PCPlus4D,predicted_address,sel);
                     .jalr(JalrE),
                     .branch(Branch_resultE),
                     .load(LoadD),
-                    .PC_F(PC_F)
+                    .PC_F(PC_F),
+                    .predicted_address(predicted_address),
+                    .sel(sel),
+                    .flag(flag),
+                    .PCback(PCback)           
                );                
     PC PC(
           .PCnext(PC_F),

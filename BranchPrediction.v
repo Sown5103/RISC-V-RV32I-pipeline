@@ -29,7 +29,9 @@ module BranchPrediction(
     input clk,rst,
     output reg predicted_outcome,
     output reg [31:0] predicted_address,
-    output reg sel
+    output reg [31:0] PCback,
+    output reg sel,
+    output reg flag
 );
     integer i = 0;
     reg [1:0] temp;
@@ -37,7 +39,7 @@ module BranchPrediction(
     reg [3:0] address; // to store 4 bit address
     reg [31:0] predicted_offset; // pc = pc + 4 or pc = pc + x
     reg [1:0] prev_branch = 2'b00;
-    reg flag;
+    
    
     always@(*) begin
         if (inst[6:0] == 7'b1100011) begin
@@ -46,7 +48,7 @@ module BranchPrediction(
             predicted_offset = predicted_outcome?({{20{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8]}<<1):32'd4;
             predicted_address = predicted_offset + pc_address;
             sel = 1'b1;
-            
+            PCback=pc_address+32'd4;
         end
         else begin
             //predicted_outcome = 1'b0;
@@ -56,7 +58,9 @@ module BranchPrediction(
     always@(posedge clk) 
         if(rst==1'b0) begin
             for (i=0; i<16; i=i+1) // prediction set to not taken
-            bht[i] = 2'b11;
+            bht[i] = 2'b00;
+            flag=0; 
+            PCback=0;
         end
         else if (branch == 1'b1)begin
             prev_branch = {actual_outcome, prev_branch[1]};
@@ -80,5 +84,6 @@ module BranchPrediction(
                 2'b11: if (actual_outcome==1'b1) bht[address] = 2'b11;
             endcase
         end
+        else flag=0;
     end
 endmodule

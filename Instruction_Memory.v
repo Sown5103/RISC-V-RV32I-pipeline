@@ -147,6 +147,9 @@
         Mem[5]  = 32'h00008093; //     
         Mem[6]  = 32'h00008093; //     
         Mem[7]  = 32'h00500193; // x3=x0+5       # I-type: load from memory address 0 to x5
+        Mem[8]  = 32'h00008093;//x1=x1+0
+        Mem[9]  = 32'h00008093; //     
+        Mem[10]  = 32'h00008093; // 
         //Mem[6]  = 32'hFFD28313; // 0x18  addi x6, x5, -3    # I-type: x6 = x5 - 3
         //Mem[7]  = 32'h001373B3; // 0x1C  and x7, x6, x1     # R-type: x7 = x6 & x1
     end
