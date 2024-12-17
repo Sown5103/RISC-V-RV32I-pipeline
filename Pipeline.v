@@ -30,14 +30,14 @@
     );
     
     input clk, rst;
-    wire PCSrcE, RegWriteW, RegWriteE, ALUSrcE, MemWriteE, Branch_resultE,LoadE, StoreE,JalE,JalrE,LoadD,JalD,JalrD,Branch_resultD, 
-    RegWriteM, MemWriteM,LoadM,StoreM,RegWriteF;
+    wire PCSrcE, RegWriteW, RegWriteE, ALUSrcE, MemWriteE, Branch_resultE,LoadE, StoreE,JalE,JalrE,LoadD,JalD,JalrD,BranchE, 
+    RegWriteM, MemWriteM,LoadM,StoreM,RegWriteF,sel;
     wire [1:0]ResultSrcE,ResultSrcM,ResultSrcW;
     wire [3:0] ALUControlE;
     wire [4:0] RD_E, RD_M, RD_W,RD_F;
     wire [31:0] PCTargetE, InstrD, PCD, PCPlus4D, ResultW, RD1_E, RD2_E, Imm_Ext_E, PCE, PCPlus4E,InstrE, PCPlus4M, WriteDataM, 
     ALU_ResultM,InstrM,ResultF;
-    wire [31:0] PCPlus4W, ALU_ResultW, ReadDataW,ALU_ResultE,opbE;
+    wire [31:0] PCPlus4W, ALU_ResultW, ReadDataW,ALU_ResultE,opbE,inabr,inbbr,predicted_address;
     wire [4:0] RS1_E, RS2_E,RS1_D,RS2_D;
     wire [1:0] ForwardBE, ForwardAE,ForwardAEDec,ForwardBEDec,ForwardASt,ForwardBSt;
     
@@ -51,7 +51,9 @@
                         .Branch_resultE(Branch_resultE), 
                         .JalD(JalD),
                         .JalrD(JalrD),
-                        .Branch_resultD(Branch_resultD),
+                        .Branch_resultD(0),
+                        .predicted_address(predicted_address),
+                        .sel(sel),
                         //out
                         .InstrD(InstrD), 
                         .PCD(PCD), 
@@ -74,10 +76,10 @@
                         .LoadD(LoadD),
                         .JalD(JalD),
                         .JalrD(JalrD),
-                        .Branch_resultD(Branch_resultD),
+                        
                         .RegWriteE(RegWriteE),
                         .ResultSrcE(ResultSrcE),
-                        .Branch_resultE(Branch_resultE),
+                        .BranchE(BranchE),
                         .LoadE(LoadE),
                         .StoreE(StoreE),
                         .JalE(JalE),
@@ -93,7 +95,9 @@
                         .InstrE(InstrE),
                         .opb(opbE),
                         .RS1_D(RS1_D),
-                        .RS2_D(RS2_D)
+                        .RS2_D(RS2_D),
+                        .inabr(inabr),
+                        .inbbr(inbbr)
                     );
 
     // Execute Stage
@@ -116,6 +120,9 @@
                         .ForwardASt(ForwardASt),
                         .ForwardBSt(ForwardBSt),
                         .ResultW(ResultW),
+                        .BranchE(BranchE),
+                        .inabr(inabr),
+                        .inbbr(inbbr),
                         //.ResultF(ResultF),
                         .opb(opbE),
                         //out
@@ -128,7 +135,8 @@
                         .PCPlus4M(PCPlus4M), 
                         .WriteDataM(WriteDataM), 
                         .ALU_ResultM(ALU_ResultM),
-                        .InstrM(InstrM)                   
+                        .InstrM(InstrM),
+                        .Branch_resultE(Branch_resultE)                   
                     );
     
     // Memory Stage
@@ -188,5 +196,18 @@
                         .ForwardBEDec(ForwardBEDec),
                         .ForwardASt(ForwardASt),
                         .ForwardBSt(ForwardBSt)
+                        );
+    BranchPrediction(   
+                        //in
+                        .actual_outcome(Branch_resultE), 
+                        .inst(InstrD),
+                        .pc_address(PCD),
+                        .branch(BranchE),
+                        .clk(clk),
+                        .rst(rst),
+                        //out
+                        .predicted_outcome(),
+                        .predicted_address(predicted_address),
+                        .sel(sel)
                         );
 endmodule

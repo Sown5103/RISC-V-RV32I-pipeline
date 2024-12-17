@@ -23,11 +23,12 @@
 `include "Instruction_Memory.v"
 `include "PC_Adder.v"
 `include "Mux.v"
-module Fetch_cycle(clk, rst, LoadD,ALU_ResultE,JalE,JalrE,Branch_resultE,JalD,JalrD,Branch_resultD, InstrD, PCD, PCPlus4D);
-    input clk, rst;
+module Fetch_cycle(clk, rst, LoadD,ALU_ResultE,JalE,JalrE,Branch_resultE,JalD,JalrD,Branch_resultD, InstrD, 
+PCD, PCPlus4D,predicted_address,sel);
+    input clk, rst,sel;
     input JalE,JalrE,Branch_resultE,LoadD;
     input JalD,JalrD,Branch_resultD;
-    input[31:0] ALU_ResultE;
+    input[31:0] ALU_ResultE,predicted_address;
     output[31:0] InstrD;
     output[31:0] PCD, PCPlus4D;
     
@@ -78,7 +79,7 @@ module Fetch_cycle(clk, rst, LoadD,ALU_ResultE,JalE,JalrE,Branch_resultE,JalD,Ja
     end     
     
     always @ (posedge clk  ) begin
-    if (JalD | Branch_resultD | JalrD) begin
+    if (JalD | /*Branch_resultD*/ | JalrD) begin
       // If jal, jalr, or branch result is high, flush the pipeline for one cycle
       PCF_reg <= 32'b0;
       InstrF_reg <= 32'bz;

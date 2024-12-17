@@ -25,41 +25,43 @@
 `include "Mux41.v"
 module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE, 
     RD1_E, RD2_E, RD_E, PCPlus4E,InstrE, RegWriteM, ResultSrcM,LoadM,StoreM, RD_M, PCPlus4M, WriteDataM, ALU_ResultM, 
-    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE,opb,ForwardASt,ForwardBSt);
+    ResultW,ResultF, ForwardA_E, ForwardB_E,InstrM,ResultE,opb,ForwardASt,ForwardBSt,inabr,inbbr,BranchE,Branch_resultE);
 
     // Declaration I/Os
     input clk, rst, RegWriteE,LoadE,StoreE;
     input [3:0] ALUControlE;
-    input [31:0] RD1_E, RD2_E,opb;
+    input [31:0] RD1_E, RD2_E,opb,inabr,inbbr;
     input [4:0] RD_E;
     input [31:0] PCPlus4E,InstrE;
     input [31:0] ResultW,ResultF;
     input [1:0] ForwardA_E, ForwardB_E,ResultSrcE,ForwardASt,ForwardBSt;
-
-    output RegWriteM,LoadM,StoreM;
+    input BranchE;
+    output RegWriteM,LoadM,StoreM,Branch_resultE;
     output [4:0] RD_M; 
     output [31:0] PCPlus4M, WriteDataM, ALU_ResultM,InstrM;
     output [31:0] ResultE;
     output [1:0]ResultSrcM;
     // Declaration of Interim Wires
-    wire [31:0] Src_A, Src_B, opbb, Src_A1,Src_A2;
+    wire [31:0] Src_A,Src_B,opbb,Src_A1,Src_A2,temp1,temp2;
     wire [31:0] ResultE;
     reg LoadE_r, StoreE_r;
-
+   
     // Declaration of Register
     reg RegWriteE_r;
     reg [4:0] RD_E_r;
-    reg [31:0] PCPlus4E_r, RD2_E_r, ResultE_r,InstrE_r;
+    reg [31:0] PCPlus4E_r, RD2_E_r, ResultE_r,InstrE_r,Br1,Br2;
     reg[1:0]ResultSrcE_r;
     // Declaration of Modules
     // 3 by 1 Mux for Source A
+   
+    
     Mux41 srca_mux (
                         .a(RD1_E),
                         .b(ResultW),
                         .c(ALU_ResultM),
                         .d(0),
                         .s(ForwardA_E),
-                        .e(Src_A1)
+                        .e(temp1)
                         );
 
     // 3 by 1 Mux for Source B
@@ -69,8 +71,10 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .c(ALU_ResultM),
                         .d(0),
                         .s(ForwardB_E),
-                        .e(Src_B)
+                        .e(temp2)
                         );
+    assign Src_A1=BranchE?RD1_E:temp1;
+    assign Src_B=BranchE?RD2_E:temp2;
     // Writedata 
     Mux41 wd1_mux (
                         .a(RD1_E),
@@ -88,6 +92,29 @@ module Execute_cycle(clk, rst, RegWriteE, ResultSrcE, LoadE,StoreE, ALUControlE,
                         .s(ForwardBSt),
                         .e(opbb)
                         );         
+    //branch
+    always @(*)begin
+        if (BranchE) begin
+            if(ForwardA_E==0) Br1=inabr;
+            else if(ForwardA_E==2'b01||ForwardA_E==2'b10) begin
+                Br1=temp1;
+                
+            end
+            if(ForwardB_E==0) Br2=inbbr;
+            else if(ForwardB_E==2'b01||ForwardB_E==2'b10)begin
+                Br2=temp2;
+                
+            end 
+        end
+    end
+    branch u_branch0(
+        .en(BranchE),
+        .op_a(Br1),
+        .op_b(Br2),
+        .fun3(InstrE[14:12]),
+        .result(Branch_resultE)
+    );
+    //for alu inA
     Mux srca (
             .a(Src_A1),
             .b(Src_A2),

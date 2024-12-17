@@ -123,13 +123,13 @@
         //Mem[2]  = 32'h002081B3; // 0x8   add x3, x1, x2
         //Mem[3]  = 32'h00508213; // addi x4,x1,5
         
-        Mem[0]  = 32'h00500093; // 0x0   addi x1, x0, 5     # I-type: x1 = x0 + 5   5
-        Mem[1]  = 32'h00A00113; // 0x4   addi x2, x0, 10    # I-type: x2 = x0 + 10  10
-        Mem[2]  = 32'h002081B3; // 0x8   add x3, x1, x2     # R-type: x3 = x1 + x2  15
+        //Mem[0]  = 32'h00500093; // 0x0   addi x1, x0, 5     # I-type: x1 = x0 + 5   5
+        //Mem[1]  = 32'h00A00113; // 0x4   addi x2, x0, 10    # I-type: x2 = x0 + 10  10
+        //Mem[2]  = 32'h002081B3; // 0x8   add x3, x1, x2     # R-type: x3 = x1 + x2  15
         //Mem[3]  = 32'h40110233//sub x4, x2, x1
         //Mem[3]  = 32'h40208233; // 0xC   sub x4, x1, x2     # R-type: x4 = x2 - x1  -5
         //Mem[4]  = 32'h404082b3; //          sub x5, x1, x4
-        Mem[3]  = 32'h00112023; // 0x10  sw x1, 0(x2)       # S-type: store x1 to memory address 0
+        //Mem[3]  = 32'h00112023; // 0x10  sw x1, 0(x2)       # S-type: store x1 to memory address 0
         //Mem[5]  = 32'h00002283; // 0x14  lw x5, 0(x0)       # I-type: load from memory address 0 to x5
         //Mem[6]  = 32'hFFD28313; // 0x18  addi x6, x5, -3    # I-type: x6 = x5 - 3
         //Mem[7]  = 32'h001373B3; // 0x1C  and x7, x6, x1     # R-type: x7 = x6 & x1
@@ -137,5 +137,17 @@
         //Mem[9]  = 32'h008004EF; // 0x24  jal x9, label      # Jump to label
         //Mem[10] = 32'h00838533; // 0x28  add x10, x7, x8
         //Mem[11] = 32'h00148493; // 0x2c  addi x9, x9, 1     # I-type: x9 = x0 + 1
+        
+        //beq
+        Mem[0]  = 32'h00A00093; // 0x0   addi x1, x0, a     # I-type: x1 = x0 + 5   5
+        Mem[2]  = 32'h00100193; //x3+=1
+        Mem[1]  = 32'h00A00113; // 0x4   addi x2, x0, 10    # I-type: x2 = x0 + 10  10
+        Mem[3]  = 32'h00208863; // 0x8   beq x1, x2, mem6     
+        Mem[4]  = 32'h00008093;//x1=x1+0
+        Mem[5]  = 32'h00008093; //     
+        Mem[6]  = 32'h00008093; //     
+        Mem[7]  = 32'h00500193; // x3=x0+5       # I-type: load from memory address 0 to x5
+        //Mem[6]  = 32'hFFD28313; // 0x18  addi x6, x5, -3    # I-type: x6 = x5 - 3
+        //Mem[7]  = 32'h001373B3; // 0x1C  and x7, x6, x1     # R-type: x7 = x6 & x1
     end
 endmodule

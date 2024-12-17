@@ -23,36 +23,37 @@
 
 
 module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, RegWriteE,ResultSrcE,
-    Branch_resultE,LoadE,StoreE,JalE,JalrE, ALUControlE, RD1_E, RD2_E, RD_E, PCE, PCPlus4E, RS1_E, RS2_E,
-    InstrE,LoadD,Branch_resultD,JalD,JalrD,opb,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec);
+    BranchE,LoadE,StoreE,JalE,JalrE, ALUControlE, RD1_E, RD2_E, RD_E, PCE, PCPlus4E, RS1_E, RS2_E,
+    InstrE,LoadD,JalD,JalrD,opb,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec,inabr,inbbr);
 
     // Declaring I/O
     input clk, rst, RegWriteW;
     input [4:0] RDW;
     input [31:0] InstrD, PCD, PCPlus4D, ResultW;
     input [1:0]ForwardAEDec,ForwardBEDec;
-    output RegWriteE,Branch_resultE,LoadE,StoreE,JalE,JalrE;
+    output RegWriteE,BranchE,LoadE,StoreE,JalE,JalrE;
     output [1:0]ResultSrcE;
     output [3:0] ALUControlE;
     output [31:0] RD1_E, RD2_E;
     output [4:0] RS1_E, RS2_E, RD_E;
     output [31:0] PCE, PCPlus4E,InstrE,opb;
-    output wire LoadD,Branch_resultD,JalD,JalrD;
+    output wire LoadD,JalD,JalrD;
+    output [31:0] inabr, inbbr;
     // Declare Interim Wires
-    wire RegWriteD,Branch_resultD,StoreD,JalD,JalrD,BranchD,operand_a,operand_b;
+    wire RegWriteD,StoreD,JalD,JalrD,BranchD,operand_a,operand_b;
     wire [1:0]ResultSrcD;
     wire [3:0] ALUControlD;
     wire [31:0] RD1_D, RD2_D, InstrD,op_a,op_b,oppa,oppb,i_immo , s_immo , sb_immo , uj_immo , u_immo,imm_mux_out;
     wire [2:0]imm_sel;
     
     // Declaration of Interim Register
-    reg RegWriteD_r,Branch_resultD_r,LoadD_r,StoreD_r,JalD_r,JalrD_r;
+    reg RegWriteD_r,BranchD_r,LoadD_r,StoreD_r,JalD_r,JalrD_r;
     reg [3:0] ALUControlD_r;
-    reg [31:0] RD1_D_r, RD2_D_r;
+    reg [31:0] RD1_D_r, RD2_D_r,inabr_r,inbbr_r;
     reg [4:0] RD_D_r, RS1_D_r, RS2_D_r;
     reg [31:0] PCD_r, PCPlus4D_r,InstrD_r,op_b_r; 
     reg [1:0]ResultSrcD_r;
-
+    
     output wire [31:0] RS1_D,RS2_D;
     assign RS1_D=InstrD[19:15];
     assign RS2_D=InstrD[24:20];
@@ -101,6 +102,8 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
         .s(ForwardBEDec),
         .c(oppb)
     );
+    
+    
     immediategen u_imm_gen0 (
         .instr(InstrD),
         .i_imme(i_immo),
@@ -136,14 +139,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
         .c(RD2_D)
     );
 
-    //BRANCH
-    branch u_branch0(
-        .en(BranchD),
-        .op_a(op_a),
-        .op_b(op_b),
-        .fun3(InstrD[14:12]),
-        .result(Branch_resultD)
-    );
+    
     
     // Declaring Register Logic
     always @(posedge clk or negedge rst) begin
@@ -153,7 +149,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
             //ALUSrcD_r <= 1'b0;
             //MemWriteD_r <= 1'b0;
             ResultSrcD_r <= 1'b0;
-            Branch_resultD_r <= 1'b0;
+            BranchD_r <= 1'b0;
             ALUControlD_r <= 4'b0000;
             RD1_D_r <= 32'h00000000; 
             RD2_D_r <= 32'h00000000; 
@@ -168,6 +164,8 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
             JalD_r <= 1'b0;
             JalrD_r <= 1'b0;
             op_b_r<=32'b0;
+            inabr_r<=32'b0;
+            inbbr_r<=32'b0;
         end
         else begin
             InstrD_r <= InstrD;
@@ -175,7 +173,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
             //ALUSrcD_r <= ALUSrcD;
             //MemWriteD_r <= MemWriteD;
             ResultSrcD_r <= ResultSrcD;
-            Branch_resultD_r <= Branch_resultD;
+            BranchD_r <= BranchD;
             ALUControlD_r <= ALUControlD;
             RD1_D_r <= RD1_D; 
             RD2_D_r <= RD2_D; 
@@ -190,6 +188,8 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
             JalD_r <= JalD;
             JalrD_r <= JalrD;
             op_b_r<=oppb;
+            inabr_r<=oppa;
+            inbbr_r<=oppb;
         end
     end
 
@@ -199,7 +199,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
     //assign ALUSrcE = A    LUSrcD_r;
     //assign MemWriteE = MemWriteD_r;
     assign ResultSrcE = ResultSrcD_r;
-    assign Branch_resultE = Branch_resultD_r;
+    assign BranchE = BranchD_r;
     assign ALUControlE = ALUControlD_r;
     assign RD1_E = RD1_D_r;
     assign RD2_E = RD2_D_r;
@@ -214,4 +214,6 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
     assign JalE = JalD_r;
     assign JalrE = JalrD_r;
     assign opb=op_b_r;
+    assign inabr=inabr_r;
+    assign inbbr=inbbr_r;
 endmodule
