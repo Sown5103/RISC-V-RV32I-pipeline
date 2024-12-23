@@ -139,7 +139,7 @@
         //Mem[11] = 32'h00148493; // 0x2c  addi x9, x9, 1     # I-type: x9 = x0 + 1
         
         //beq
-        Mem[0]  = 32'h00A00093; // 0x0   addi x1, x0, a     # I-type: x1 = x0 + 5   5
+        Mem[0]  = 32'h00A00093; // 0x0   addi x1, x0, 5     # I-type: x1 = x0 + 5   5
         Mem[2]  = 32'h00100193; //x3+=1
         Mem[1]  = 32'h00A00113; // 0x4   addi x2, x0, 10    # I-type: x2 = x0 + 10  10
         Mem[3]  = 32'h00208863; // 0x8   beq x1, x2, mem6     

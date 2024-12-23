@@ -29,7 +29,7 @@ module NextAddr(
     output reg [31:0] PC_F;
     always@(*) begin   
             if(jal|jalr/*|branch*/) PC_F <= ALU_Result;
-            if(flag)begin
+            if(flag)begin //du doan sai
                 if(branch)PC_F<=ALU_Result;
                 else PC_F<=PCback;
                 

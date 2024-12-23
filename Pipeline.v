@@ -76,6 +76,7 @@
                         .ResultW(ResultW),
                         .ForwardAEDec(ForwardAEDec),
                         .ForwardBEDec(ForwardBEDec),
+                        .flag(flag),
                          //out
                         .LoadD(LoadD),
                         .JalD(JalD),

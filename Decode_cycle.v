@@ -24,10 +24,10 @@
 
 module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, RegWriteE,ResultSrcE,
     BranchE,LoadE,StoreE,JalE,JalrE, ALUControlE, RD1_E, RD2_E, RD_E, PCE, PCPlus4E, RS1_E, RS2_E,
-    InstrE,LoadD,JalD,JalrD,opb,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec,inabr,inbbr);
+    InstrE,LoadD,JalD,JalrD,opb,RS1_D,RS2_D,ForwardAEDec,ForwardBEDec,inabr,inbbr,flag);
 
     // Declaring I/O
-    input clk, rst, RegWriteW;
+    input clk, rst, RegWriteW,flag;
     input [4:0] RDW;
     input [31:0] InstrD, PCD, PCPlus4D, ResultW;
     input [1:0]ForwardAEDec,ForwardBEDec;
@@ -143,7 +143,7 @@ module Decode_cycle(clk, rst, InstrD, PCD, PCPlus4D, RegWriteW, RDW, ResultW, Re
     
     // Declaring Register Logic
     always @(posedge clk or negedge rst) begin
-        if(rst == 1'b0) begin
+        if(rst == 1'b0||flag) begin
             InstrD_r <= 32'b0;
             RegWriteD_r <= 1'b0;
             //ALUSrcD_r <= 1'b0;

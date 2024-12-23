@@ -58,7 +58,7 @@ module BranchPrediction(
     always@(posedge clk) 
         if(rst==1'b0) begin
             for (i=0; i<16; i=i+1) // prediction set to not taken
-            bht[i] = 2'b00;
+            bht[i] = 2'b11;
             flag=0; 
             PCback=0;
         end

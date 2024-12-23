@@ -82,10 +82,14 @@ PCD, PCPlus4D,predicted_address,sel,PCF,InstrF,flag,PCback);
     end     
     
     always @ (posedge clk  ) begin
-    if (JalD | /*Branch_resultD*/ | JalrD) begin
+    if (flag) begin //flush neu du doan sai
+        PCF_reg <= 32'b0;
+        InstrF_reg <= 32'b0;
+    end
+    else if (JalD | /*Branch_resultD*/ | JalrD) begin
       // If jal, jalr, or branch result is high, flush the pipeline for one cycle
       PCF_reg <= 32'b0;
-      InstrF_reg <= 32'bz;
+      InstrF_reg <= 32'b0;
       flush_pipeline <= 1; // Set flag to flush for one cycle
     end 
     else begin
@@ -105,7 +109,7 @@ PCD, PCPlus4D,predicted_address,sel,PCF,InstrF,flag,PCback);
       else if (LoadD) begin
         //stall pipeline
         //PCF_reg <= PCD;
-        InstrF_reg <= 32'bz;
+        InstrF_reg <= 32'b0;
       end
       else begin
         // For other instructions, proceed normally
